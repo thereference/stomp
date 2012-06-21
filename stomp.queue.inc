@@ -20,7 +20,6 @@ class StompQueue implements DrupalReliableQueueInterface {
     require_once('lib/Stomp.php');
     
     $this->name = $name;
-    
     $this->stomp_params = stomp_get_queue_options($name);
     $this->createconnection();
   }
@@ -80,11 +79,14 @@ class StompQueue implements DrupalReliableQueueInterface {
    *   far as we know, the item is now in the queue.
    */
   public function createItem($data) {
+    
+    if (array_key_exists('headers', $this->stomp_params)) {
+      $headers = $this->stomp_params['headers'];
+    }
+    
     try {
       // send a message to the queue
-      $this->stomp->send("/queue/" . $this->name, serialize($data), $this->stomp_params['headers']);
-      // disconnect
-      $this->disconnect();
+      $this->stomp->send("/queue/" . $this->name, serialize($data), $headers);
     }
     catch (StompException $e) {
       var_dump($e);
@@ -113,6 +115,8 @@ class StompQueue implements DrupalReliableQueueInterface {
   public function numberOfItems() {
     // STOMP does not provide a facility to count the number of items on a queue
     // so this function is not required.
+    
+    return;
   }
   
   /**
@@ -140,7 +144,8 @@ class StompQueue implements DrupalReliableQueueInterface {
     if ($this->stomp->hasFrameToRead()) {
       // receive a message from the queue
       $item = $this->stomp->readFrame();
-
+      $item->data = unserialize($item->body);
+      unset($item->body);
       return $item;
     }
     else {

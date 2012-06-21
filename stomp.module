@@ -9,6 +9,9 @@
 
 /**
  * Get Queue Parameters
+ * 
+ * @param $name
+ *   The name of the queue to get parameters for.
  */
 function stomp_get_queue_options($name) {
   static $options = array();
@@ -18,7 +21,7 @@ function stomp_get_queue_options($name) {
     
     $defaults = variable_get('stomp_default_queue', array()) + array(
       'host' => variable_get('stomp_host', 'localhost'),
-      'port' => variable_get('stomp_port', 61613),
+      'port' => variable_get('stomp_port', '61613'),
       'protocol' => variable_get('stomp_protocol', 'tcp'),
     );
     $options[$name] += $defaults;
@@ -27,6 +30,9 @@ function stomp_get_queue_options($name) {
   return $options[$name];
 }
 
+/*
+ * 
+ */
 function stomp_tester(){
   
   $data = array('test');

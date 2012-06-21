@@ -1,0 +1,61 @@
+<?php
+/**
+ * @file
+ * Stomp module integrates Drupal with an external STOMP
+ * message queue, such as ActiveMQ.
+ *
+ */
+
+
+/**
+ * Get Queue Parameters
+ */
+function stomp_get_queue_options($name) {
+  static $options = array();
+
+  if (!isset($options[$name])) {    
+    $options[$name] = variable_get('stomp_queue_' . $name, array());
+    
+    $defaults = variable_get('stomp_default_queue', array()) + array(
+      'host' => variable_get('stomp_host', 'localhost'),
+      'port' => variable_get('stomp_port', 61613),
+      'protocol' => variable_get('stomp_protocol', 'tcp'),
+    );
+    $options[$name] += $defaults;
+  }
+
+  return $options[$name];
+}
+
+function stomp_tester(){
+  
+  $data = array('test');
+  
+  $queue = DrupalQueue::get('stomp_test_queue');
+  
+  if ($queue->createItem($data)){
+    print "Created queue item \n";
+  } else {
+    print "Create item failed \n";
+  }
+  
+}
+
+function stomp_claim(){
+  
+  $queue = DrupalQueue::get('stomp_test_queue');
+  
+  if ($item = $queue->claimItem()) {
+    print "Claimed item from queue \n\n";
+    var_dump($item);
+    
+    //sleep(30);
+    //print "acknowledging item \n\n";
+    $queue->deleteItem($item);
+  }
+  else {
+    print "Could not claim item from queue \n\n";
+  }
+  
+  $queue->disconnect();  
+}

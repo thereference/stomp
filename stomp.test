@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Tests for Drupal Queue. Run with Simpletest module.
+ * http://drupal.org/project/simpletest
+ */
+
+/**
+ * Test the basic queue functionality.
+ */
+class StompTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Stomp Queue',
+      'description' => 'Queues and dequeues a set of items to check the basic queue functionality.',
+      'group' => 'Drupal Queue',
+    );
+  }
+  
+  public function setUp() {
+    parent::setUp('stomp');
+  }
+  
+  
+  
+  
+}

@@ -29,14 +29,32 @@ class StompQueue implements DrupalReliableQueueInterface {
   }
   
   
-  public function createconnection(){
-    $connection = $this->stomp_params['protocol'] . '://';
-    $connection .= $this->stomp_params['host'] . ':' . $this->stomp_params['port'];
+  public function createconnection() {
+    $connection = NULL;
+    
+    if (is_array($this->stomp_params['brokers']) && count($this->stomp_params['brokers']) > 1) {
+      // multiple brokers specified so build up failover URL
+      $connection = 'failover://(';
+      $connection .= implode(',', $this->stomp_params['brokers']);
+      $connection .= '?randomize=' . (isset($this->stomp_params['randomize']) ? $this->stomp_params['randomize'] : 'false');
+    }
+    elseif (is_array($this->stomp_params['brokers']) && count($this->stomp_params['brokers']) > 1) {
+      $connection = $this->stomp_params['brokers'][0];
+    }
     
     $this->stomp = new Stomp($connection);
     
+    $user = NULL;
+    $pass = NULL;
+    
+    // Check if we've got authentication credentials defined for this queue.
+    if (is_array($this->stomp_params['credentials'])) {
+      $user = $this->stomp_params['credentials']['user'];
+      $pass = $this->stomp_params['credentials']['pass']; 
+    }
+    
     // connect
-    $this->stomp->connect();
+    $this->stomp->connect($user, $pass);
   }
   
   /**

@@ -21,15 +21,14 @@ class StompQueue implements DrupalReliableQueueInterface {
     
     $this->name = $name;
     $this->stomp_params = stomp_get_queue_options($name);
-    $this->createconnection();
+    $this->connect();
   }
   
   public function __destruct() {
     $this->disconnect();
   }
   
-  
-  public function createconnection() {
+  private function connect() {
     $connection = NULL;
     
     if (is_array($this->stomp_params['brokers']) && count($this->stomp_params['brokers']) > 1) {
@@ -107,9 +106,7 @@ class StompQueue implements DrupalReliableQueueInterface {
       $this->stomp->send("/queue/" . $this->name, serialize($data), $headers);
     }
     catch (StompException $e) {
-      var_dump($e);
-      echo "Error creating queue item";
-      
+      watchdog('STOMP', 'Error creating queue item: !exception', array('!exception' => $e));
       return FALSE;
     }
     
@@ -192,7 +189,7 @@ class StompQueue implements DrupalReliableQueueInterface {
     
   }
   
-  public function disconnect(){
+  private function disconnect(){
     $this->stomp->disconnect();
   }
   

@@ -3,7 +3,6 @@
  * @file
  * Stomp module integrates Drupal with an external STOMP
  * message queue, such as ActiveMQ.
- *
  */
 
 
@@ -27,42 +26,4 @@ function stomp_get_queue_options($name) {
   }
 
   return $options[$name];
-}
-
-/*
- * Test function for adding an item to a queue
- */
-function stomp_tester() {
-
-  $data = array('test');
-
-  $queue = DrupalQueue::get('stomp_test_queue');
-
-  if ($queue->createItem($data)) {
-    print "Created queue item \n";
-  }
-  else {
-    print "Create item failed \n";
-  }
-
-}
-
-/*
- * Test function for claiming an item from a queue
- */
-function stomp_claim() {
-
-  $queue = DrupalQueue::get('stomp_test_queue');
-
-  if ($item = $queue->claimItem()) {
-    print "Claimed item from queue \n\n";
-    var_dump($item);
-
-    $queue->deleteItem($item);
-  }
-  else {
-    print "Could not claim item from queue \n\n";
-  }
-
-  $queue->disconnect(); 
 }

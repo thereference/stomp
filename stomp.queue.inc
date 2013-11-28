@@ -5,11 +5,9 @@
  */
 
 class StompQueue implements DrupalReliableQueueInterface {
-  
-  
+
   protected $name;
-  
-  
+
   /**
    * Start working with a queue.
    *
@@ -18,44 +16,51 @@ class StompQueue implements DrupalReliableQueueInterface {
    */
   public function __construct($name) {
     require_once('lib/Stomp.php');
-    
+
     $this->name = $name;
     $this->stomp_params = stomp_get_queue_options($name);
     $this->connect();
   }
-  
+
   public function __destruct() {
     $this->disconnect();
   }
-  
+
   private function connect() {
     $connection = NULL;
-    
+
     if (is_array($this->stomp_params['brokers']) && count($this->stomp_params['brokers']) > 1) {
       // multiple brokers specified so build up failover URL
       $connection = 'failover://(';
       $connection .= implode(',', $this->stomp_params['brokers']);
       $connection .= '?randomize=' . (isset($this->stomp_params['randomize']) ? $this->stomp_params['randomize'] : 'false');
     }
-    elseif (is_array($this->stomp_params['brokers']) && count($this->stomp_params['brokers']) > 1) {
+    elseif (is_array($this->stomp_params['brokers']) && count($this->stomp_params['brokers']) == 1) {
       $connection = $this->stomp_params['brokers'][0];
     }
-    
+
     $this->stomp = new Stomp($connection);
-    
+
+    // Add clientId to make it a durable topic subscriber.
+    if (!empty($this->stomp_params['clientId'])) {
+      $this->stomp->clientId = $this->stomp_params['clientId'];
+    }
+
     $user = NULL;
     $pass = NULL;
-    
+
     // Check if we've got authentication credentials defined for this queue.
-    if (is_array($this->stomp_params['credentials'])) {
+    if (!empty($this->stomp_params['credentials']['user'])) {
       $user = $this->stomp_params['credentials']['user'];
-      $pass = $this->stomp_params['credentials']['pass']; 
     }
-    
+    if (!empty($this->stomp_params['credentials']['pass'])) {
+      $pass = $this->stomp_params['credentials']['pass'];
+    }
+
     // connect
     $this->stomp->connect($user, $pass);
   }
-  
+
   /**
    * Create a queue.
    *
@@ -69,10 +74,10 @@ class StompQueue implements DrupalReliableQueueInterface {
    */
   public function createQueue() {
     // STOMP queues are created on demand, so the first time an item is created
-    // for a queue which does not exist then it will be created within the 
+    // for a queue which does not exist then it will be created within the
     // destination broker.
   }
-  
+
   /**
    * Delete a queue.
    *
@@ -83,7 +88,7 @@ class StompQueue implements DrupalReliableQueueInterface {
     // STOMP does not provide a mechanism to delete queues from the source
     // broker.
   }
-  
+
   /**
    * Add a queue item and store it directly to the queue.
    *
@@ -96,11 +101,12 @@ class StompQueue implements DrupalReliableQueueInterface {
    *   far as we know, the item is now in the queue.
    */
   public function createItem($data) {
-    
+
+    $headers = array();
     if (array_key_exists('headers', $this->stomp_params)) {
       $headers = $this->stomp_params['headers'];
     }
-    
+
     try {
       // send a message to the queue
       $this->stomp->send("/queue/" . $this->name, serialize($data), $headers);
@@ -109,10 +115,10 @@ class StompQueue implements DrupalReliableQueueInterface {
       watchdog('STOMP', 'Error creating queue item: !exception', array('!exception' => $e));
       return FALSE;
     }
-    
+
     return TRUE;
   }
-  
+
   /**
    * Retrieve the number of items in the queue.
    *
@@ -130,10 +136,10 @@ class StompQueue implements DrupalReliableQueueInterface {
   public function numberOfItems() {
     // STOMP does not provide a facility to count the number of items on a queue
     // so this function is not required.
-    
+
     return;
   }
-  
+
   /**
    * Claim an item in the queue for processing.
    *
@@ -155,7 +161,7 @@ class StompQueue implements DrupalReliableQueueInterface {
   public function claimItem($lease_time = 3600, $timeout = TRUE) {
     // subscribe to the queue
     $this->stomp->subscribe("/queue/" . $this->name);
-    
+
     if ($this->stomp->hasFrameToRead()) {
       // receive a message from the queue
       $item = $this->stomp->readFrame();
@@ -167,7 +173,7 @@ class StompQueue implements DrupalReliableQueueInterface {
       return FALSE;
     }
   }
-  
+
   /**
    * Delete a finished item from the queue.
    *
@@ -177,7 +183,7 @@ class StompQueue implements DrupalReliableQueueInterface {
   public function deleteItem($item) {
     $this->stomp->ack($item->headers['message-id']);
   }
-  
+
   /**
    * Release an item that the worker could not process, so another
    * worker can come in and process it before the timeout expires.
@@ -186,12 +192,12 @@ class StompQueue implements DrupalReliableQueueInterface {
    * @return boolean
    */
   public function releaseItem($item) {
-    
+
   }
-  
+
   private function disconnect(){
     $this->stomp->disconnect();
   }
-  
+
 
 }

@@ -1,9 +1,8 @@
 stomp.connect:
-  path: '/stom-connect'
+  path: '/stomp'
   defaults:
-    _controller: '\Drupal\stomp\Controller\StompController:connect'
+    _form: '\Drupal\stomp\Form\StompTestForm'
     _title: 'Connect to Stomp'
   requirements:
     # Here is a comment why this open access callback is OK.
     _access: 'TRUE'
-

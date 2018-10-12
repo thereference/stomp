@@ -1,8 +1,11 @@
 <?php
 
-namespace Drupal\stomp\Controller;
+namespace Drupal\stomp\Service;
+
 use Stomp\Client;
 use Stomp\SimpleStomp;
+use Stomp\StatefulStomp;
+use Stomp\Transport\Message;
 
 /**
  * Class StompController
@@ -24,10 +27,24 @@ class StompService {
   private $stomp;
 
   /**
+   * The active queue.
+   * @var string
+   */
+  private $queue;
+
+  /**
+   * @param string $queue
+   */
+  public function setQueue($queue) {
+    $this->queue = $queue;
+  }
+
+  /**
    * StompController constructor.
    */
   public function __construct() {
     $this->getStompParams();
+    $this->queue = 'Drupal';
   }
 
   /**
@@ -41,8 +58,20 @@ class StompService {
    * Connect to a STOMP queue.
    */
   public function connect() {
-    $this->stomp = new SimpleStomp(new Client('tcp://activemq'));
-    var_dump($this->stomp);
-    die();
+    /** @var \Stomp\SimpleStomp stomp */
+    $this->stomp = new StatefulStomp(new Client('tcp://activemq'));
+    return $this->stomp ? 'OK' : 'Something went wrong when connecting.';
+  }
+
+
+
+  public function read(){
+    $this->stomp->subscribe('/queue/' . $this->queue);
+    return $this->stomp->read();
+  }
+
+  public function write($message){
+    $message = new Message($message);
+    return $this->stomp->send($this->queue, $message) ? 'OK' : 'Something went wrong.';
   }
 }

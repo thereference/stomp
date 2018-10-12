@@ -7,13 +7,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StompController extends ControllerBase {
 
-  public function connect() {
-    /** @var \Drupal\stomp\Controller\StompService $stomp */
-    $stomp = \Drupal::service('stomp.connection');
-    $stomp->connect();
+  private $stomp;
 
-    $respone = new Response('Hallo');
-    return $respone;
+  public function connect() {
+    /** @var \Drupal\stomp\Service\StompService $stomp */
+    $this->stomp = \Drupal::service('stomp.connection');
+    $response = new Response($this->stomp->connect());
+    return $response;
+  }
+
+  public function write() {
+    $this->connect();
+    $this->stomp->setQueue('test-queue');
+    $response = new Response($this->stomp->write('Dit is het bericht'));
+    return $response;
+  }
+  public function read() {
+    $this->connect();
+    $this->stomp->setQueue('test-queue');
+    $response = new Response($this->stomp->read());
+    return $response;
+
   }
 
 }

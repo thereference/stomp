@@ -2,19 +2,11 @@
 
 namespace Drupal\stomp\Queue;
 
-use Drush\Queue\QueueBase;
+use Drupal\Core\Queue\QueueWorkerBase;
 
-class StompQueue extends QueueBase{
+class StompQueue extends QueueWorkerBase {
 
-  public function getQueues() {
-    // TODO: Implement getQueues() method.
-  }
-
-  public function run($name, $time_limit = 0) {
-    // TODO: Implement run() method.
-  }
-
-  public function getQueue($name) {
-    // TODO: Implement getQueue() method.
+  public function processItem($data) {
+    // TODO: Implement processItem() method.
   }
 }

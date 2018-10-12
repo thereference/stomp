@@ -1,0 +1,5 @@
+stomp.admin_settings:
+  title: 'Stomp settings'
+  parent: system.admin_config_services
+  description: 'Configure the stomp settings.'
+  route_name: stomp.config

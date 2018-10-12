@@ -18,13 +18,11 @@ class StompController extends ControllerBase {
 
   public function write() {
     $this->connect();
-    $this->stomp->setQueue('test-queue');
     $response = new Response($this->stomp->write('Dit is het bericht'));
     return $response;
   }
   public function read() {
     $this->connect();
-    $this->stomp->setQueue('test-queue');
     $response = new Response($this->stomp->read());
     return $response;
 

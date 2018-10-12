@@ -33,7 +33,7 @@ class StompService {
    */
   public function __construct(ConfigFactoryInterface $configFactory) {
     $this->configFactory = $configFactory;
-    $brokers = $this->configFactory->get('stomp.config')->get('brokers');
+    $brokers = $this->configFactory->get('stomp.settings')->get('brokers');
     $this->stomp = new StatefulStomp(new Client($brokers[0]));
   }
 

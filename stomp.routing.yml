@@ -1,0 +1,7 @@
+stomp.config:
+  path: '/admin/config/services/stomp/config'
+  defaults:
+    _form: '\Drupal\stomp\Form\StompAdminConfigForm'
+    _title: 'Stomp configuration'
+  requirements:
+    _permission: 'administer stomp'

@@ -1,3 +1,4 @@
 services:
   stomp.connection:
     class: Drupal\stomp\Controller\StompController
+    arguments: ['@config.factory']

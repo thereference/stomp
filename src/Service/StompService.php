@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\stomp\Controller;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Stomp\Client;
 use Stomp\SimpleStomp;
 
@@ -24,9 +25,20 @@ class StompService {
   private $stomp;
 
   /**
-   * StompController constructor.
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  public function __construct() {
+  private $configFactory;
+
+  /**
+   * StompController constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The Config factory.
+   */
+  public function __construct(ConfigFactoryInterface $configFactory) {
+    $this->configFactory = $configFactory;
     $this->getStompParams();
   }
 
@@ -34,7 +46,7 @@ class StompService {
    * Get the parameters for out STOMP connection.
    */
   protected function getStompParams() {
-    //TODO set stomp params.
+    $brokers = $this->configFactory->get('stomp.config')->get('brokers');
   }
 
   /**

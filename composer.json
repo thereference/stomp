@@ -1,0 +1,9 @@
+{
+    "name": "drupal/stomp",
+    "description": "Drupal module for stomp support",
+    "type": "project",
+    "require": {
+        "stomp-php/stomp-php": "^4.4"
+    },
+    "minimum-stability": "stable"
+}

@@ -1,6 +1,0 @@
-name = Stomp
-description = Integrate Drupal with an external STOMP or AMQP message queue, such as ActiveMQ.
-core = 7.x
-package = Stomp
-files[] = stomp.queue.inc
-files[] = stomp.test

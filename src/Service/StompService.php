@@ -2,20 +2,46 @@
 
 namespace Drupal\stomp\Controller;
 
-require __DIR__ . '/../../vendor/autoload.php';
 use Drupal\Core\Controller\ControllerBase;
 use Stomp\Client;
 use Stomp\SimpleStomp;
 
-class StompController extends ControllerBase {
+/**
+ * Class StompController
+ * @package Drupal\stomp\Controller
+ */
+class StompService {
 
+  /**
+   * The parameters to use in our STOMP connection.
+   *
+   * @var array
+   */
   private $stompParams;
+
+  /**
+   *
+   * @var SimpleStomp\
+   */
   private $stomp;
 
+  /**
+   * StompController constructor.
+   */
   public function __construct() {
     $this->getStompParams();
   }
 
+  /**
+   * Get the parameters for out STOMP connection.
+   */
+  protected function getStompParams() {
+    //TODO set stomp params.
+  }
+
+  /**
+   * Connect to a STOMP queue.
+   */
   public function connect() {
     $connection = NULL;
 
@@ -46,9 +72,5 @@ class StompController extends ControllerBase {
     if (!empty($this->stompParams['credentials']['pass'])) {
       $pass = $this->stompParams['credentials']['pass'];
     }
-  }
-
-  private function getStompParams() {
-    //TODO set stomp params.
   }
 }
